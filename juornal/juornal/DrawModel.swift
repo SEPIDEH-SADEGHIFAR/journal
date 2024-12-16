@@ -4,6 +4,7 @@ import SwiftUI
 struct DraggableItem: Identifiable {
     let id = UUID()
     var position: CGPoint
+    var scale: CGFloat = 1.0 
     var content: DraggableContent
 }
 

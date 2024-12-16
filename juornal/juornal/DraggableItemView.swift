@@ -1,15 +1,17 @@
 import SwiftUI
+
 struct DraggableItemView: View {
     @ObservedObject var viewModel: DrawingPageViewModel
     var item: DraggableItem
 
     @State private var position: CGPoint
-    @State private var scale: CGFloat = 1.0 // For resizing text or image
+    @State private var scale: CGFloat // For resizing
 
     init(item: DraggableItem, viewModel: DrawingPageViewModel) {
         self.item = item
         self.viewModel = viewModel
         _position = State(initialValue: item.position)
+        _scale = State(initialValue: item.scale) // Initialize scale from item
     }
 
     var body: some View {
@@ -23,7 +25,12 @@ struct DraggableItemView: View {
                     .scaleEffect(scale)
                     .gesture(
                         MagnificationGesture()
-                            .onChanged { value in scale = value }
+                            .onChanged { value in
+                                self.scale = value * item.scale // Incremental scaling
+                            }
+                            .onEnded { _ in
+                                updateScaleInViewModel()
+                            }
                     )
             case .text(let text):
                 TextField("Enter text", text: Binding(
@@ -40,7 +47,12 @@ struct DraggableItemView: View {
                 .scaleEffect(scale)
                 .gesture(
                     MagnificationGesture()
-                        .onChanged { value in scale = value }
+                        .onChanged { value in
+                            self.scale = value * item.scale
+                        }
+                        .onEnded { _ in
+                            updateScaleInViewModel()
+                        }
                 )
             }
         }
@@ -49,10 +61,22 @@ struct DraggableItemView: View {
             DragGesture()
                 .onChanged { value in
                     self.position = value.location
-                    if let index = viewModel.draggableItems.firstIndex(where: { $0.id == item.id }) {
-                        viewModel.draggableItems[index].position = value.location
-                    }
+                    updatePositionInViewModel()
                 }
         )
+    }
+
+    // Updates the scale in the ViewModel
+    private func updateScaleInViewModel() {
+        if let index = viewModel.draggableItems.firstIndex(where: { $0.id == item.id }) {
+            viewModel.draggableItems[index].scale = scale
+        }
+    }
+
+    // Updates the position in the ViewModel
+    private func updatePositionInViewModel() {
+        if let index = viewModel.draggableItems.firstIndex(where: { $0.id == item.id }) {
+            viewModel.draggableItems[index].position = position
+        }
     }
 }

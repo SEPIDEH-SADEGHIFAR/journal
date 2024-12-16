@@ -5,6 +5,8 @@ struct DrawingPageView: View {
     @StateObject private var viewModel: DrawingPageViewModel
     var journalEntry: JournalEntry
     @State private var isEditingText: Bool = false // Track if any text field is being edited
+    @State private var toolPicker: PKToolPicker? // Tool picker for selecting tools
+    @State private var canvasView: PKCanvasView = PKCanvasView() // Canvas View
     
     // Init method to pass the journalEntry to the view model
     init(journalEntry: JournalEntry) {
@@ -23,7 +25,11 @@ struct DrawingPageView: View {
                 }
                 
                 // PencilKit Canvas directly on the grid
-                PencilCanvasView(canvasView: $viewModel.canvasView)
+                PencilCanvasView(canvasView: $canvasView)
+                    .onAppear {
+                        // Initialize the tool picker when the view appears
+                        setupToolPicker()
+                    }
                 
                 // Draggable Items
                 ForEach(viewModel.draggableItems) { item in
@@ -65,11 +71,17 @@ struct DrawingPageView: View {
                             Image(systemName: "textformat")
                         }
                         .foregroundColor(Color(red: 150/255, green: 108/255, blue: 171/255))
-                    }
-                }
-            }
-        }
-        .sheet(isPresented: $viewModel.showImagePicker) {
+                        // Pencil button
+                                                Button(action: {
+                                                    toggleToolPicker() // Show/hide the tool picker
+                                                }) {
+                                                    Image(systemName: "pencil.tip")
+                                                        .foregroundColor(Color(red: 150/255, green: 108/255, blue: 171/255))
+                                                }
+                                            }
+                                        }
+                                    }
+                                }        .sheet(isPresented: $viewModel.showImagePicker) {
             ImagePicker(selectedImage: $viewModel.selectedImage, isCamera: false)
                 .onDisappear {
                     if let image = viewModel.selectedImage {
@@ -78,7 +90,28 @@ struct DrawingPageView: View {
                 }
         }
     }
+    // Setup Tool Picker for iOS 14+ versions
+    private func setupToolPicker() {
+        // Ensure the canvas view is a first responder
+        canvasView.becomeFirstResponder()
+        
+        // Check if the toolPicker is already initialized
+        if toolPicker == nil {
+            toolPicker = PKToolPicker()
+            toolPicker?.addObserver(canvasView)
+        }
+        
+        // Make toolPicker visible
+        toolPicker?.setVisible(true, forFirstResponder: canvasView)
+    }
+    
+    // Toggle visibility of Tool Picker
+    private func toggleToolPicker() {
+        guard let toolPicker = toolPicker else { return }
+        toolPicker.setVisible(!toolPicker.isVisible, forFirstResponder: canvasView)
+    }
 }
+
 
 // MARK: - EditableTextView
 struct EditableTextView: View {

@@ -1,14 +1,7 @@
-//
-//  juornalApp.swift
-//  juornal
-//
-//  Created by seyedeh sepideh sadeghi far on 09/12/24.
-//
-
 import SwiftUI
 
 @main
-struct juornalApp: App {
+struct MyApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()

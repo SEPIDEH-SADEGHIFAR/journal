@@ -10,6 +10,12 @@ class DrawingPageViewModel: ObservableObject {
     @Published var selectedImage: UIImage?
     @Published var textItems: [TextItem] = []
     @Published var currentlyEditing: UUID? // Track which text item is being edited
+    
+    let journalEntry: JournalEntry
+
+        init(journalEntry: JournalEntry) {
+            self.journalEntry = journalEntry
+        }
 
     func addImage(_ image: UIImage) {
         let item = DraggableItem(position: CGPoint(x: 100, y: 100), content: .image(image))

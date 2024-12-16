@@ -97,7 +97,7 @@ struct JournalInputView: View {
             // Save Button
             Button(action: {
                 guard !emoji.isEmpty, !title.isEmpty else { return }
-                let entry = JournalEntry(emoji: emoji, title: title, description: description, date: selectedDate, coverImage: selectedImage)
+                let entry = JournalEntry(id: UUID(), emoji: emoji, title: title, description: description, date: selectedDate, coverImage: selectedImage)
                 onSave(entry)
             }) {
                 Text("Save")

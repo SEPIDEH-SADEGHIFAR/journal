@@ -1,33 +1,22 @@
-
 import SwiftUI
 
 struct ContentView: View {
-    @State private var journalEntries: [JournalEntry] = []
+    @StateObject private var viewModel = JournalListViewModel()
 
     var body: some View {
-        TabView {
-            // Tab 1: Journal List
-            JournalListView(journalEntries: $journalEntries)
-                .tabItem {
-                    Label("Journal", systemImage: "book.fill")
-                }
-
-            // Tab 2: Add New Entry
-            JournalInputView(onSave: { newEntry in
-                journalEntries.append(newEntry)
-            })
-            .tabItem {
-                Label("Add", systemImage: "plus.circle.fill")
-            }
-
-            // Tab 3: Drawing View
-                        DrawingPageView()
-                            .tabItem {
-                                Label("Draw", systemImage: "pencil.tip")
-                            }
+        NavigationStack {
+            JournalListView(journalEntries: $viewModel.journalEntries) // Pass Binding of journalEntries
+                .navigationDestination(for: JournalNavigation.self) { destination in
+                    switch destination {
+                    case .inputView:
+                        JournalInputView(onSave: { newEntry in
+                            viewModel.addEntry(newEntry)
+                        })
+                    case .drawingView(let entry):
+                        DrawingPageView(journalEntry: entry) // Pass JournalEntry directly
                     }
-        .tabViewStyle(DefaultTabViewStyle()) // Ensures the tab bar is at the bottom
-        
+                }
+        }
     }
 }
 #Preview {

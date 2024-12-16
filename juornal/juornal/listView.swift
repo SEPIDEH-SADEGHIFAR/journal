@@ -2,29 +2,56 @@ import SwiftUI
 
 struct JournalListView: View {
     @Binding var journalEntries: [JournalEntry]
-    
-    // Define two column layout for LazyVGrid
+
     let columns = [
         GridItem(.flexible()), // First column
         GridItem(.flexible())  // Second column
     ]
 
+    // To present the JournalInputView when the plus button is tapped
+    @State private var isAddingNewEntry = false
+
     var body: some View {
-        ScrollView {
-            // LazyVGrid for displaying journal entries in two columns
-            LazyVGrid(columns: columns, spacing: 25) {
-                ForEach(journalEntries) { entry in
-                    JournalEntryView(entry: entry) // Custom view for each journal entry
+        NavigationStack {
+            ScrollView {
+                LazyVGrid(columns: columns, spacing: 25) {
+                    ForEach(journalEntries) { entry in
+                        NavigationLink(destination: DrawingPageView(journalEntry: entry)) {
+                            JournalEntryView(entry: entry) // Custom view for each journal entry
+                        }
+                    }
+                }
+                .padding()
+            }
+            .background(Color(red: 248/255, green: 246/255, blue: 206/255)) // Pastel yellow background
+            .navigationTitle("Journal List")
+            .toolbar {
+                // Add a plus button to the navigation bar
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        // Set the flag to show the JournalInputView when the plus button is tapped
+                        isAddingNewEntry.toggle()
+                    }) {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title)
+                    }
                 }
             }
-            .padding()
+            .sheet(isPresented: $isAddingNewEntry) {
+                // Show the JournalInputView when isAddingNewEntry is true
+                JournalInputView(onSave: { newEntry in
+                    journalEntries.append(newEntry)
+                    isAddingNewEntry = false // Dismiss the sheet after saving
+                })
+            }
         }
-        .background(Color(red: 248/255, green: 246/255, blue: 206/255)) // Pastel yellow background
     }
 }
 
+
+
 // Preview for Journal List View
-struct JournalListView_Previews: PreviewProvider {
+/*struct JournalListView_Previews: PreviewProvider {
     static var previews: some View {
         JournalListView(journalEntries: .constant([
             JournalEntry(emoji: "😀", title: "First Entry", description: "This is my first journal entry", date: Date(), coverImage: UIImage(named: "image1")),
@@ -34,3 +61,4 @@ struct JournalListView_Previews: PreviewProvider {
         ]))
     }
 }
+*/

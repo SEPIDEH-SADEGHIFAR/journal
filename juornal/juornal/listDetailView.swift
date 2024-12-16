@@ -15,7 +15,7 @@ struct JournalInputView: View {
 
     var body: some View {
         VStack {
-            Text("New Journal Entry")
+            Text("New Journal")
                 .font(.largeTitle)
                 .bold()
                 .padding()
@@ -104,7 +104,7 @@ struct JournalInputView: View {
                     .bold()
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color(red: 93/255, green: 170/255, blue: 52/255))
+                    .background(Color(red: 150/255, green: 108/255, blue: 171/255))
                     .foregroundColor(.white)
                     .cornerRadius(10)
             }

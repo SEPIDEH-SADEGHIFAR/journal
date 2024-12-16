@@ -24,7 +24,7 @@ struct JournalListView: View {
                 .padding()
             }
             .background(Color(red: 248/255, green: 246/255, blue: 206/255)) // Pastel yellow background
-            .navigationTitle("Journal List")
+            .navigationTitle("your journals")
             .toolbar {
                 // Add a plus button to the navigation bar
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -34,6 +34,7 @@ struct JournalListView: View {
                     }) {
                         Image(systemName: "plus.circle.fill")
                             .font(.title)
+                            .foregroundColor(Color(red: 150/255, green: 108/255, blue: 171/255))
                     }
                 }
             }

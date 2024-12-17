@@ -1,54 +1,44 @@
 import SwiftUI
 import PencilKit
+import SwiftData
 
 struct DrawingPageView: View {
+    @Environment(\.modelContext) private var context
     @StateObject private var viewModel: DrawingPageViewModel
     var journalEntry: JournalEntry
-    @State private var isEditingText: Bool = false // Track if any text field is being edited
-    @State private var toolPicker: PKToolPicker? // Tool picker for selecting tools
-    @State private var canvasView: PKCanvasView = PKCanvasView() // Canvas View
-    
-    // Init method to pass the journalEntry to the view model
+    @State private var isEditingText: Bool = false
+    @State private var toolPicker: PKToolPicker?
+    @State private var canvasView: PKCanvasView = PKCanvasView()
+
     init(journalEntry: JournalEntry) {
         _viewModel = StateObject(wrappedValue: DrawingPageViewModel(journalEntry: journalEntry))
         self.journalEntry = journalEntry
     }
-    
+
     var body: some View {
         NavigationStack {
             ZStack {
-                // Grid Background
                 if viewModel.gridStyle == .dot {
                     DotGridView()
                 } else if viewModel.gridStyle == .square {
                     SquareGridView()
                 }
-                
-                // PencilKit Canvas directly on the grid
+
                 PencilCanvasView(canvasView: $canvasView)
                     .onAppear {
-                        // Initialize the tool picker when the view appears
                         setupToolPicker()
                     }
-                
-                // Draggable Items
                 ForEach(viewModel.draggableItems) { item in
-                    DraggableItemView(item: item, viewModel: viewModel)
-                }
-                
-                // Correctly order arguments in EditableTextView
+                                    DraggableItemView(item: item, viewModel: viewModel)
+                                }
+
                 ForEach(viewModel.textItems) { textItem in
-                    EditableTextView(
-                        viewModel: viewModel, // First: ViewModel
-                        isEditingText: $isEditingText, // Second: Binding to editing state
-                        textItem: textItem // Third: Text item
-                    )
+                    EditableTextView(viewModel: viewModel, isEditingText: $isEditingText, textItem: textItem)
                 }
-                
             }
-            .contentShape(Rectangle()) // Ensure taps outside text fields are detected
+            .contentShape(Rectangle())
             .onTapGesture {
-                isEditingText = false // Dismiss editing mode on tap outside
+                isEditingText = false
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -73,7 +63,7 @@ struct DrawingPageView: View {
                         .foregroundColor(Color(red: 150/255, green: 108/255, blue: 171/255))
                         // Pencil button
                                                 Button(action: {
-                                                    toggleToolPicker() // Show/hide the tool picker
+                                                   // toggleToolPicker() // Show/hide the tool picker
                                                 }) {
                                                     Image(systemName: "pencil.tip")
                                                         .foregroundColor(Color(red: 150/255, green: 108/255, blue: 171/255))
@@ -81,47 +71,33 @@ struct DrawingPageView: View {
                                             }
                                         }
                                     }
-                                }        .sheet(isPresented: $viewModel.showImagePicker) {
-            ImagePicker(selectedImage: $viewModel.selectedImage, isCamera: false)
-                .onDisappear {
-                    if let image = viewModel.selectedImage {
-                        viewModel.addImage(image)
-                    }
-                }
+                                
+            .sheet(isPresented: $viewModel.showImagePicker) {
+                ImagePicker(selectedImage: $viewModel.selectedImage, isCamera: false)
+            }
         }
     }
-    // Setup Tool Picker for iOS 14+ versions
+
     private func setupToolPicker() {
-        // Ensure the canvas view is a first responder
         canvasView.becomeFirstResponder()
-        
-        // Check if the toolPicker is already initialized
         if toolPicker == nil {
             toolPicker = PKToolPicker()
             toolPicker?.addObserver(canvasView)
         }
-        
-        // Make toolPicker visible
         toolPicker?.setVisible(true, forFirstResponder: canvasView)
     }
-    
-    // Toggle visibility of Tool Picker
-    private func toggleToolPicker() {
-        guard let toolPicker = toolPicker else { return }
-        toolPicker.setVisible(!toolPicker.isVisible, forFirstResponder: canvasView)
-    }
 }
+import SwiftUI
 
-
-// MARK: - EditableTextView
 struct EditableTextView: View {
     @ObservedObject var viewModel: DrawingPageViewModel
     @Binding var isEditingText: Bool // Shared editing state
     var textItem: TextItem
-    
+
     var body: some View {
         ZStack {
             if isEditingText && viewModel.isEditing(textItem) {
+                // TextField to edit text
                 TextField("", text: Binding(
                     get: { textItem.text },
                     set: { viewModel.updateText(for: textItem, with: $0) }
@@ -132,6 +108,7 @@ struct EditableTextView: View {
                 .cornerRadius(5)
                 .padding()
             } else {
+                // Displaying text as static if not in edit mode
                 Text(textItem.text.isEmpty ? "Double-click to edit" : textItem.text)
                     .foregroundColor(.black)
                     .frame(width: 150, height: 30, alignment: .center)
@@ -142,20 +119,12 @@ struct EditableTextView: View {
                     }
             }
         }
-        .position(textItem.position)
+        .position(textItem.position)  // Position the text on the canvas
         .gesture(
             DragGesture()
                 .onChanged { value in
                     viewModel.updatePosition(for: textItem, to: value.location)
                 }
         )
-    }
-}
-
-// MARK: - Preview
-struct DrawingPageView_Previews: PreviewProvider {
-    static var previews: some View {
-        // Pass a mock JournalEntry to the preview
-        DrawingPageView(journalEntry: JournalEntry( id: UUID(), emoji: "😊", title: "Test Entry", description: "This is a description", date: Date(), coverImage: nil))
     }
 }

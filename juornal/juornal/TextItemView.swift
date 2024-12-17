@@ -51,3 +51,19 @@ struct TextItemView: View {
         .border(isEditing ? Color.gray : Color.clear, width: 1) // Show the border only when editing
     }
 }
+import Foundation
+import SwiftUI
+
+// Define the TextItem struct
+struct TextItem: Identifiable {
+    let id: UUID
+    var text: String
+    var position: CGPoint
+    
+    // Custom initializer for TextItem
+    init(id: UUID = UUID(), text: String = "", position: CGPoint = .zero) {
+        self.id = id
+        self.text = text
+        self.position = position
+    }
+}

@@ -2,6 +2,7 @@ import SwiftUI
 import UIKit
 
 struct JournalInputView: View {
+    @Environment(\.modelContext) private var context
     @State private var emoji: String = ""
     @State private var title: String = ""
     @State private var description: String = ""
@@ -77,9 +78,8 @@ struct JournalInputView: View {
                         } else {
                             Text("No image selected")
                         }
-                        
 
-                    Spacer()
+                        Spacer()
 
                         Button(action: {
                             showImagePicker.toggle()
@@ -97,7 +97,18 @@ struct JournalInputView: View {
             // Save Button
             Button(action: {
                 guard !emoji.isEmpty, !title.isEmpty else { return }
-                let entry = JournalEntry(id: UUID(), emoji: emoji, title: title, description: description, date: selectedDate, coverImage: selectedImage)
+                
+                // Convert UIImage to Data if there's an image selected
+                let coverImageData = selectedImage?.jpegData(compressionQuality: 0.8) // You can use .pngData() for PNG images
+                
+                let entry = JournalEntry(
+                    emoji: emoji,
+                    title: title,
+                    entryDescription: description,
+                    date: selectedDate,
+                    coverImage: coverImageData // Pass the data representation of the image
+                )
+                context.insert(entry)
                 onSave(entry)
             }) {
                 Text("Save")

@@ -14,10 +14,11 @@ struct JournalEntryView: View {
             // Title section
             Text(entry.title)
                 .font(.headline)
+                .foregroundColor(.black)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             // Description section
-            Text(entry.description)
+            Text(entry.entryDescription)
                 .font(.body)
                 .foregroundColor(.gray)
                 .lineLimit(3) // Limit description to 3 lines for better consistency
@@ -30,13 +31,17 @@ struct JournalEntryView: View {
 
             // Image section
             if let image = entry.coverImage {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 270, height: 230)
-                    .clipped()
-                    .cornerRadius(8)
-                    .frame(maxWidth: .infinity, alignment: .bottom)
+                if let uiImage = UIImage(data: image) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 270, height: 230)
+                        .clipped()
+                        .cornerRadius(8)
+                        .frame(maxWidth: .infinity, alignment: .bottom)
+                    
+                }
+                
             }
         }
         .padding()

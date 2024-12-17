@@ -1,8 +1,10 @@
 import SwiftUI
 import PencilKit
+import SwiftData
 
-// MARK: - ViewModel
+
 class DrawingPageViewModel: ObservableObject {
+    
     @Published var gridStyle: GridStyle = .none
     @Published var canvasView = PKCanvasView()
     @Published var draggableItems: [DraggableItem] = []
@@ -10,12 +12,12 @@ class DrawingPageViewModel: ObservableObject {
     @Published var selectedImage: UIImage?
     @Published var textItems: [TextItem] = []
     @Published var currentlyEditing: UUID? // Track which text item is being edited
-    
+
     let journalEntry: JournalEntry
 
-        init(journalEntry: JournalEntry) {
-            self.journalEntry = journalEntry
-        }
+    init(journalEntry: JournalEntry) {
+        self.journalEntry = journalEntry
+    }
 
     func addImage(_ image: UIImage) {
         let item = DraggableItem(position: CGPoint(x: 100, y: 100), content: .image(image))
@@ -46,11 +48,9 @@ class DrawingPageViewModel: ObservableObject {
     func isEditing(_ textItem: TextItem) -> Bool {
         currentlyEditing == textItem.id
     }
-}
 
-// MARK: - TextItem
-struct TextItem: Identifiable {
-    let id: UUID
-    var text: String
-    var position: CGPoint
+    func saveDrawing() {
+        // Save the drawing to model context (optional)
+        // Example: You could save the canvas image or drawing data here if needed
+    }
 }

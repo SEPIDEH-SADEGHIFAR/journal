@@ -1,6 +1,7 @@
 import UIKit
 import SwiftUI
 
+
 struct DraggableItem: Identifiable {
     let id = UUID()
     var position: CGPoint

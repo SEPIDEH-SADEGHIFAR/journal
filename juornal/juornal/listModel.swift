@@ -1,21 +1,25 @@
 import Foundation
-import UIKit
+import SwiftData
 
-struct JournalEntry: Identifiable, Hashable {
-    var id: UUID
-    var emoji: String
-    var title: String
-    var description: String
-    var date: Date
-    var coverImage: UIImage?
+@Model
+class JournalEntry: Identifiable {
     
-    // Hashable conformance
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id) // You can combine other properties as needed
-    }
-
-    // Equatable conformance (implicitly synthesized with hashable conformance)
-    static func ==(lhs: JournalEntry, rhs: JournalEntry) -> Bool {
-        lhs.id == rhs.id
+    @Attribute(.unique) var id: UUID
+     var emoji: String
+     var title: String
+    var entryDescription: String // Renamed to avoid conflict with system 'description'
+     var date: Date
+    
+    // Optional field for storing image data
+     var coverImage: Data? // Store image as Data (binary format)
+    
+    // Custom initializer to create a JournalEntry instance
+    init(id: UUID = UUID(), emoji: String, title: String, entryDescription: String, date: Date, coverImage: Data? = nil) {
+        self.id = id
+        self.emoji = emoji
+        self.title = title
+        self.entryDescription = entryDescription
+        self.date = date
+        self.coverImage = coverImage
     }
 }
